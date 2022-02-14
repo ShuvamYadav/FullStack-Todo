@@ -1,0 +1,8 @@
+fileignoreconfig:
+- filename: yarn.lock
+  checksum: 40f378024f87b9a063d25ebb38266c4c95edb9aee1adc605ed14447348b75aa9
+- filename: pages/api/auth/login.js
+  checksum: 4d4cc917cb9e13c8d79af3b907661c3085251aba2c218261423fb434017aff0d
+- filename: README.md
+  checksum: 39a7bbb8e509ffe779ba1ee64be603c59552f0e534dcd74062202eda35e39b00
+version: ""

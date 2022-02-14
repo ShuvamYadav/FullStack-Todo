@@ -19,17 +19,22 @@ app.get('/todos', async (req,res) => {
 })
 
 app.post('/todos/new', async (req,res) => {
-    const data = req.body.text;
-    const result = await Todo.find();
-    result.todo.push(data);
-    await result.save();
-
+   const newTodo= new Todo({
+       todo:req.body.text
+   })
+   newTodo.save();
+   res.json(newTodo);
 })
 
-app.put('/todo/update', async(req,res) =>{
-    const user = await Todo.find();
-    user.todo = [...user.todo , req.body.text];
+app.put('/todos/update', async(req,res) =>{
+    const user = await Todo.findById("620a250d3dbaf924f0a82b30")
+    await user.todo.push(req.body.text);
     user.save();
     res.json(user);
 })
-
+app.delete("/todos",async(req,res)=>{
+    const user = await Todo.findById("620a250d3dbaf924f0a82b30");
+    await user.todo.pull("get bread")
+    await user.save();
+    res.json(user);
+})

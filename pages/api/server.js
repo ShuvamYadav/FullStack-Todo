@@ -19,14 +19,25 @@ app.listen(3001, () => {
 });
 
 app.get("/todos", async (req, res) => {
-  const todos = await Todo.findOne({ username: req.body.username });
-  res.json(todos);
+  const user = await Todo.findOne({ username: req.body.username });
+  if (!user) {
+    res.status(404).send("No user found");
+  } else {
+    bcrypt.compare(req.body.password, user.password).then(async (isMatch) => {
+      if (isMatch) {
+        res.json(user);
+      } else {
+        res.status(404).send("Incorrect password");
+      }
+    });
+  }
 });
 
 app.get("/todos/all", async (req, res) => {
   const users = await Todo.find();
   res.json(users);
 });
+
 app.post("/todos/new", async (req, res) => {
   if (!(await Todo.findOne({ username: req.body.username }))) {
     const newTodo = new Todo({
@@ -44,7 +55,8 @@ app.post("/todos/new", async (req, res) => {
       });
     });
   } else {
-    res.status(406).send("Username taken");
+    // return next(new Error('Username exist'));
+    res.status(400).send("Username exist backend");
   }
 });
 

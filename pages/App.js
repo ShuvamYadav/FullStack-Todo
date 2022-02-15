@@ -3,73 +3,68 @@ import React, { useState } from "react";
 
 const api_base = "http://localhost:3001";
 
-function MyApp({ Component, pageProps }) {
+function MyApp() {
   const [todo, setTodo] = useState([]);
-  const [input, setInput] = useState("");
-  const [popupActive, setPopupActive] = useState(true);
+  const [NewTodo, setNewTodo] = useState("");
+  const [PopupActive, setPopupActive] = useState(true);
   const [NewUsername, setNewUsername] = useState("");
   const [NewPassword, setNewPassword] = useState("");
   const [CurrentUser, setCurrentUser] = useState("");
   const [CurrentPass, setCurrentPass] = useState("");
 
   const addTodo = async () => {
-    await setTodo([...todo, input]);
-
-    if (todo.length > 0) {
-      const data = await fetch(api_base + "/todos/update", {
-        method: "PUT",
-        headers: {
-          "Content-Type": "application/json",
-        },
-        body: JSON.stringify({
-          text: input,
-        }),
+    const data = await fetch(api_base + "/todos/update", {
+      method: "PUT",
+      headers: {
+        "Content-Type": "application/json",
+      },
+      body: JSON.stringify({
+        username: CurrentUser,
+        password: CurrentPass,
+        todo: NewTodo
       })
-        .then((res) => res.json())
-        .catch((err) => {
-          console.log(err);
-        });
-
-      console.log(todo.length);
-      setInput("");
-    } else {
-      const data = await fetch(api_base + "/todos/new", {
-        method: "POST",
-        headers: {
-          "Content-Type": "application/json",
-        },
-        body: JSON.stringify({
-          text: [input],
-        }),
+    }).then((res) => {
+        if (res.status >= 400 && res.status < 600) {
+          throw new Error(res.message);
+        }
+        res.json();
       })
-        .then((res) => res.json())
-        .catch((err) => {
-          console.log(err);
-        });
-
-      console.log(todo.length);
-      setInput("");
-    }
+      .catch((err) => {
+        alert(err);
+      });
+    // setPopupActive(false);
+    console.log(data);
+    setTodo(data.todo);
   };
-  const deleteTodo = async (e) => {
+
+
+  const deleteTodo = async (toRemove) => {
     const data = await fetch(api_base + "/todos", {
       method: "DELETE",
+      headers: {
+        "Content-Type": "application/json",
+      },
       body: JSON.stringify({
-        text: e,
-      }),
-    })
-      .then((res) => res.json())
+        username: CurrentUser,
+        password: CurrentPass,
+
+      })
+    }).then((res) => {
+        if (res.status >= 400 && res.status < 600) {
+          throw new Error(res.message);
+        }
+        res.json();
+      })
       .catch((err) => {
-        console.log(err);
+        alert(err);
       });
 
-    setTodo((todo) => todo.filter((i) => i != e));
+    setTodo(data.todo);
     console.log(data);
   };
 
+
   const registerUser = async () => {
-    console.log(NewUsername);
-    console.log(NewPassword);
     const data = await fetch(api_base + "/todos/new", {
       method: "POST",
       headers: {
@@ -81,35 +76,26 @@ function MyApp({ Component, pageProps }) {
       })
     })
       .then((res) => {
-        if(res.status >= 400 && res.status < 600){
+        if (res.status >= 400 && res.status < 600) {
           throw new Error(res.message);
-        } 
-        else{
-          console.log("in Register user then");
-          setPopupActive(false);
-          res.json();
-          // setTodo(res.todo);
-          // var jsonObj = JSON.parse(res.json);
-          setTodo(res.todo);
-          setCurrentUser(NewUsername);
-          setCurrentPass(NewPassword);
         }
+        res.json();
       })
       .catch((err) => {
-        // console.log(err);
-        console.log("in catch");
         alert(err);
       });
-
-      setNewPassword("");
-      setNewUsername("");
+    console.log(data);
+    // (data.todo  ? setTodo(data.todo) : setTodo([]);
+    // setPopupActive(false);
+    setCurrentUser(NewUsername);
+    setCurrentPass(NewPassword);
+    // setNewPassword("");
+    // setNewUsername("");
   };
 
   const loginUser = async () => {
-    // console.log(NewUsername);
-    // console.log(NewPassword);
     const data = await fetch(api_base + "/todos", {
-      method: "GET",
+      method: "PUT",
       headers: {
         "Content-Type": "application/json",
       },
@@ -119,24 +105,23 @@ function MyApp({ Component, pageProps }) {
       })
     })
       .then((res) => {
-        // res.json();
-        console.log("in Loginuser then");
-        setPopupActive(false);
-        // setTodo(res.todo);
-        var jsonObj = JSON.parse(res);
-        setTodo(jsonObj.todo);
-        setCurrentUser(NewUsername);
-        setCurrentPass(NewPassword);
+        if (res.status >= 400 && res.status < 600) {
+          throw new Error(res.message);
+        }
+        res.json();
       })
       .catch((err) => {
-        // console.log(err);
-        console.log("in catch");
-        alert("Username does not exist");
+        alert(err);
       });
 
-      setNewPassword("");
-      setNewUsername("");
+    // setPopupActive(false);
+    console.log(data);
 
+    setCurrentUser(NewUsername);
+    setCurrentPass(NewPassword);
+
+    // setNewPassword("");
+    // setNewUsername("");
   };
 
   return (
@@ -146,9 +131,9 @@ function MyApp({ Component, pageProps }) {
       <input
         type="text"
         name="todo"
-        value={input}
+        value={NewTodo}
         onChange={(e) => {
-          setInput(e.target.value);
+          setNewTodo(e.target.value);
         }}
       />
       <button name="submit" type="submit" onClick={addTodo}>
@@ -172,7 +157,7 @@ function MyApp({ Component, pageProps }) {
         Login/Register
       </div> */}
 
-      {popupActive ? (
+      {PopupActive ? (
         <div className="popup">
           <div className="closePopup" onClick={() => setPopupActive(false)}>
             X

@@ -18,7 +18,7 @@ app.listen(3001, () => {
   console.log("listening to client on port 3001");
 });
 
-app.get("/todos", async (req, res) => {
+app.put("/todos", async (req, res) => {
   const user = await Todo.findOne({ username: req.body.username });
   if (!user) {
     res.status(404).send("No user found");
@@ -38,6 +38,7 @@ app.get("/todos/all", async (req, res) => {
   res.json(users);
 });
 
+
 app.post("/todos/new", async (req, res) => {
   if (!(await Todo.findOne({ username: req.body.username }))) {
     const newTodo = new Todo({
@@ -48,17 +49,16 @@ app.post("/todos/new", async (req, res) => {
       bcrypt.hash(newTodo.password, salt, (err, hash) => {
         if (err) throw err;
         newTodo.password = hash;
-        newTodo
-          .save()
-          .then((user) => res.json(user))
-          .catch((err) => console.log(err));
+        newTodo.save().catch((err) => console.log(err));
       });
     });
+    res.json(newTodo);
   } else {
     // return next(new Error('Username exist'));
     res.status(400).send("Username exist backend");
   }
 });
+
 
 app.put("/todos/update", async (req, res) => {
   const user = await Todo.findOne({ username: req.body.username });
@@ -76,6 +76,8 @@ app.put("/todos/update", async (req, res) => {
     });
   }
 });
+
+
 app.delete("/todos", async (req, res) => {
   const user = await Todo.findOne({ username: req.body.username });
   if (!user) {

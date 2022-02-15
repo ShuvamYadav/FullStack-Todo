@@ -22,6 +22,7 @@ app.get('/todos', async (req,res) => {
 
 app.post('/todos/new', async (req,res) => {
    const newTodo= new Todo({
+       name:req.body.name,
        todo:req.body.text
    })
    newTodo.save();
@@ -29,13 +30,13 @@ app.post('/todos/new', async (req,res) => {
 })
 
 app.put('/todos/update', async(req,res) =>{
-    const user = await Todo.find();
+    const user = await Todo.findOne({name:req.body.name});
     await user.todo.push(req.body.text);
     user.save();
     res.json(user);
 })
 app.delete("/todos",async(req,res)=>{
-    const user = await Todo.find();
+    const user = await Todo.findOne({name:req.body.name});
     await user.todo.pull(req.body.text);
     await user.save();
     res.json(user);

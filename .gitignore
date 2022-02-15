@@ -36,5 +36,5 @@ yarn-error.log*
 yarn.lock
 package-lock.json
 pages/api/yarn.lock
-
+pages/api/package-lock.json
 /pages/api/node_modules

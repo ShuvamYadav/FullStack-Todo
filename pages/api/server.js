@@ -28,10 +28,10 @@ app.get("/todos/all", async (req, res) => {
   res.json(users);
 });
 app.post("/todos/new", async (req, res) => {
-  if (!await Todo.findOne({ username: req.body.username })) {
+  if (!(await Todo.findOne({ username: req.body.username }))) {
     const newTodo = new Todo({
       username: req.body.username,
-      password: req.body.password
+      password: req.body.password,
     });
     bcrypt.genSalt(10, (err, salt) => {
       bcrypt.hash(newTodo.password, salt, (err, hash) => {
@@ -69,12 +69,14 @@ app.delete("/todos", async (req, res) => {
   if (!user) {
     res.status(404).send("No user found");
   } else {
-    if (user.password === req.body.password) {
-      await user.todo.pull(req.body.todo);
-      await user.save();
-      res.json(user);
-    } else {
-      res.status(404).send("Incorrect password");
-    }
+    bcrypt.compare(req.body.password, user.password).then(async (isMatch) => {
+      if (isMatch) {
+        await user.todo.pull(req.body.todo);
+        await user.save();
+        res.json(user);
+      } else {
+        res.status(404).send("Incorrect password");
+      }
+    });
   }
 });
